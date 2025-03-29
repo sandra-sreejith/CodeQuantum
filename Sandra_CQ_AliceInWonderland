@@ -1,0 +1,171 @@
+#include <LiquidCrystal.h>
+
+#define RS 7
+#define E 6
+#define D4 5
+#define D5 4
+#define D6 3
+#define D7 2
+#define BUTTON 10       //Fast Forward Time Button
+#define BUTTON_BACK 9   //Button to go "Back in Time"
+
+LiquidCrystal lcd(RS, E, D4, D5, D6, D7);
+
+int hours = 12;
+int minutes = 0;
+int seconds = 0;
+bool buttonPressed = false;
+bool backButtonPressed = false;
+bool messageScrolled = false; //Making this a Flag to keep track if the message has scrolled
+unsigned long previousMillis = 0;
+int timeInterval = 1000; //1 sec
+String warningMessage = "Warning: The Queen of Hearts is coming!! ";
+
+void setup() {
+    pinMode(BUTTON, INPUT_PULLUP);
+    pinMode(BUTTON_BACK, INPUT_PULLUP);
+    
+    lcd.begin(16, 2);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Hello & Welcome");
+    lcd.setCursor(0, 1);
+    lcd.print("ACM CQ Judges!");
+    delay(3000);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("This is Sandra's");
+    lcd.setCursor(0, 1);
+    lcd.print("Project for CQ!!");
+    delay(3000);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("Theme: Alice");
+    lcd.setCursor(0, 1);
+    lcd.print("in Wonderland");
+    delay(3000);
+
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print("White Rabbit's");
+    lcd.setCursor(0, 1);
+    lcd.print("Pocket Watch");
+    delay(3000);
+    lcd.clear();
+}
+
+void loop() {
+    unsigned long currentMillis = millis();
+    
+    //Forward time button
+    if (digitalRead(BUTTON) == LOW) 
+    {
+        if (!buttonPressed) 
+        {
+            timeInterval = (timeInterval == 1000) ? 100 : 1000; //Toggling the speed
+            buttonPressed = true;
+        }
+    } 
+    else 
+    {
+        buttonPressed = false;
+    }
+
+    //Back-in-time button
+    if (digitalRead(BUTTON_BACK) == LOW) 
+    {
+        if (!backButtonPressed) 
+        {
+            goBackInTime();
+            backButtonPressed = true;
+        }
+    } 
+    else 
+    {
+        backButtonPressed = false;
+    }
+
+    //Update clock every `timeInterval` ms
+    if (currentMillis - previousMillis >= timeInterval) 
+    {
+        previousMillis = currentMillis;
+        tickClock();
+    }
+}
+
+void tickClock() 
+{
+    seconds++;
+    if (seconds >= 60) 
+    {
+        seconds = 0;
+        minutes++;
+        if (minutes >= 60) 
+        {
+            minutes = 0;
+            hours++;
+            if (hours > 12) hours = 1; // 12-hour format
+        }
+    }
+
+    lcd.setCursor(0, 0);
+    lcd.print("Time: ");
+    lcd.print(hours);
+    lcd.print(":");
+
+    if (minutes < 10) lcd.print("0");
+    lcd.print(minutes);
+    lcd.print(":");
+
+    if (seconds < 10) lcd.print("0"); 
+    lcd.print(seconds);
+
+    if (minutes == 15 && !messageScrolled) 
+    {
+        scrollMessage(warningMessage);
+        messageScrolled = true; //To mark it as scrolled
+    }
+
+    if (minutes != 15) {
+        messageScrolled = false;
+    }
+}
+
+// Function to scroll a message on the second line
+void scrollMessage(String message) {
+    for (int i = 0; i <= message.length() - 16; i++) 
+    { // Ensure full scrolling
+        lcd.setCursor(0, 1);
+        lcd.print(message.substring(i, i + 16));
+        delay(300);
+    }
+    delay(1000); 
+    lcd.setCursor(0, 1);
+    lcd.print("                "); 
+}
+
+//Function to go back in time
+void goBackInTime() 
+{
+    seconds = 0;
+    minutes--;
+    
+    if (minutes < 0) 
+    { 
+        minutes = 59; 
+        hours--;
+        if (hours < 1) hours = 12; //12-hour format
+    }
+
+    lcd.setCursor(0, 0);
+    lcd.print("Time: ");
+    lcd.print(hours);
+    lcd.print(":");
+
+    if (minutes < 10) lcd.print("0");
+    lcd.print(minutes);
+    lcd.print(":00"); //Resetting sec to 00
+}
