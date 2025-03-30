@@ -1,6 +1,7 @@
+//Welcome to Sandra's Code!
 #include <LiquidCrystal.h>
 
-#define RS 7
+#define RS 7 //<LCD Pin name> <Arduino Digital Pin number>
 #define E 6
 #define D4 5
 #define D5 4
@@ -57,7 +58,8 @@ void setup() {
     lcd.clear();
 }
 
-void loop() {
+void loop() 
+{
     unsigned long currentMillis = millis();
     
     //Forward time button
@@ -137,7 +139,7 @@ void tickClock()
 // Function to scroll a message on the second line
 void scrollMessage(String message) {
     for (int i = 0; i <= message.length() - 16; i++) 
-    { // Ensure full scrolling
+    { //Ensuring that it scrolls compleletly
         lcd.setCursor(0, 1);
         lcd.print(message.substring(i, i + 16));
         delay(300);
@@ -167,5 +169,5 @@ void goBackInTime()
 
     if (minutes < 10) lcd.print("0");
     lcd.print(minutes);
-    lcd.print(":00"); //Resetting sec to 00
+    lcd.print(":00"); 
 }
